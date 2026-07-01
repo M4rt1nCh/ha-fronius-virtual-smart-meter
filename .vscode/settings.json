@@ -1,0 +1,14 @@
+{
+  // Local (macOS/Linux) interpreter: the project virtualenv created with
+  //   python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt -r fronius_virtual_smart_meter/requirements.txt
+  // The devcontainer overrides this to its system Python (see devcontainer.json),
+  // because a venv built on the host won't run inside the Linux container.
+  "python.defaultInterpreterPath": "",
+
+  // Testing panel: use pytest. Test discovery/args come from pyproject.toml
+  // ([tool.pytest.ini_options]); pytestArgs points the explorer at tests/.
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "python.testing.autoTestDiscoverOnSaveEnabled": true,
+  "python.testing.pytestArgs": ["tests"]
+}

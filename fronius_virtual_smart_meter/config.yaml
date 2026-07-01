@@ -1,0 +1,69 @@
+name: Fronius Virtual Smart Meter
+version: "0.1.0"
+slug: fronius_vsm
+description: >-
+  Aggregate inverter data (from Home Assistant entities) into one virtual
+  Fronius SunSpec smart meter, discoverable by a Fronius GEN24 over Modbus
+  TCP on the Home Assistant host's IP.
+url: https://github.com/M4rt1nCh/ha-fronius-virtual-smart-meter
+arch:
+  - aarch64
+  - amd64
+  - armhf
+  - armv7
+  - i386
+init: false
+# The Modbus server binds port 502 on the host so the Fronius can reach it at
+# Home Assistant's own IP.
+host_network: true
+# Read entity states from the HA Core API (for source: homeassistant inverters).
+homeassistant_api: true
+startup: services
+boot: auto
+options:
+  log_level: info
+  ha_poll_interval: 5
+  meter:
+    serial: VIRTUAL_COMBINED
+    manufacturer: Fronius
+    model_name: Smart Meter 63A
+    power_sign: export
+    stale_timeout: 120
+  inverters:
+    - name: Growatt 1
+      source: homeassistant
+      phases: single
+      phase: L1
+      entities:
+        power: sensor.growatt1_ac_power
+        energy_total: sensor.growatt1_total_energy
+schema:
+  log_level: list(trace|debug|info|notice|warning|error|fatal)
+  ha_poll_interval: int(1,)
+  meter:
+    serial: str
+    manufacturer: str?
+    model_name: str?
+    power_sign: list(export|production)
+    stale_timeout: int(0,)
+    device_address: int?
+  inverters:
+    - name: str
+      source: list(homeassistant)
+      phases: list(single|three)
+      phase: list(L1|L2|L3)?
+      entities:
+        power: str?
+        energy_total: str?
+        voltage: str?
+        current: str?
+        frequency: str?
+        voltage_l1: str?
+        voltage_l2: str?
+        voltage_l3: str?
+        current_l1: str?
+        current_l2: str?
+        current_l3: str?
+        power_l1: str?
+        power_l2: str?
+        power_l3: str?
