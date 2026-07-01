@@ -1,0 +1,4 @@
+{
+  // ms-python.python provides the Testing panel (pytest discovery/run/debug).
+  "recommendations": ["ms-python.python", "charliermarsh.ruff"]
+}

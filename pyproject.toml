@@ -1,0 +1,26 @@
+[tool.ruff]
+# Match the Python 3.12 base images used by the add-on (see build.yaml).
+target-version = "py312"
+line-length = 88
+src = ["fronius_virtual_smart_meter"]
+
+[tool.ruff.lint]
+# A pragmatic default set: pycodestyle/pyflakes, import sorting, pyupgrade,
+# bugbear, comprehensions, and simplify.
+select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+
+[tool.ruff.format]
+# Ruff's formatter is Black-compatible; keep double quotes.
+quote-style = "double"
+
+[tool.pytest.ini_options]
+# The app package is imported as `app.*` with fronius_virtual_smart_meter/ as its
+# root (no install step needed — pytest adds it to sys.path).
+pythonpath = ["fronius_virtual_smart_meter"]
+testpaths = ["tests"]
+markers = [
+    "integration: end-to-end tests that start a real Modbus TCP server (deselect with -m 'not integration')",
+]

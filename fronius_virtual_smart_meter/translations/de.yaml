@@ -1,0 +1,123 @@
+configuration:
+  log_level:
+    name: Protokollierungsstufe
+    description: >-
+      Ausführlichkeit des Add-on-Protokolls. Verwende debug, um HA-API-Abfragen
+      und Aggregations-Updates bei der Fehlersuche nachzuverfolgen.
+  ha_poll_interval:
+    name: HA-Abfrageintervall
+    description: >-
+      Sekunden zwischen Abfragen der Home Assistant Core API nach
+      Entitätszuständen. Niedrigere Werte reagieren schneller, fragen aber
+      häufiger ab. Standard 5.
+  meter:
+    name: Virtueller Zähler
+    description: Identität und Verhalten des einzelnen aggregierten SunSpec-Zählers.
+    fields:
+      serial:
+        name: Seriennummer
+        description: >-
+          Eindeutige, stabile Seriennummer für den virtuellen Zähler. Verwende
+          nicht die Seriennummer deines echten Smart Meters und ändere sie
+          nicht mehr, sobald Fronius den Zähler registriert hat.
+      manufacturer:
+        name: Hersteller
+        description: Angezeigter Herstellername. Standard Fronius.
+      model_name:
+        name: Modellname
+        description: Angezeigter Modellname. Standard „Smart Meter 63A".
+      power_sign:
+        name: Vorzeichen der Leistung
+        description: >-
+          production meldet die Erzeugung als positive Watt (was ein GEN24
+          Generator-Zähler erwartet); export meldet sie als negative Watt
+          (klassische Zählerkonvention). Umkehren, wenn Solar.web das Vorzeichen
+          falsch anzeigt.
+      stale_timeout:
+        name: Timeout für veraltete Daten
+        description: >-
+          Sekunden ohne frische Daten, bevor ein Wechselrichter aus der
+          aktuellen Leistungssumme entfernt wird (seine Gesamtenergie bleibt
+          erhalten). 0 deaktiviert die Prüfung.
+      device_address:
+        name: Geräteadresse
+        description: >-
+          SunSpec Common-Block-Geräteadresse. Standard 240; muss selten
+          geändert werden.
+  inverters:
+    name: Wechselrichter
+    description: >-
+      Ein Eintrag pro zu aggregierendem Wechselrichter. Alle Einträge werden zu
+      dem einen virtuellen Zähler summiert.
+    fields:
+      name:
+        name: Name
+        description: Anzeigename für diesen Wechselrichter, wird im Protokoll verwendet.
+      source:
+        name: Quelle
+        description: >-
+          Woher die Daten dieses Wechselrichters stammen. Derzeit Home
+          Assistant-Entitäten.
+      phases:
+        name: Phasen
+        description: >-
+          single für einen einphasigen Wechselrichter, three für einen
+          dreiphasigen Wechselrichter.
+      phase:
+        name: Phase
+        description: >-
+          Bei einphasigen Wechselrichtern, welche Phase (L1/L2/L3) der
+          Wechselrichter speist.
+      entities:
+        name: Entitäten
+        description: >-
+          Zuordnung von Messgröße zu Home Assistant-Entitäts-ID. power und
+          energy_total sind erforderlich; der Rest ist optional. Einheiten
+          werden pro Entität automatisch erkannt.
+        fields:
+          power:
+            name: Leistung
+            description: >-
+              Entität für AC-Leistung (beliebige Einheit, z. B. W oder kW —
+              automatisch umgerechnet).
+          energy_total:
+            name: Gesamtenergie
+            description: >-
+              Entität für die gesamte erzeugte Energie (Wh oder kWh —
+              automatisch umgerechnet).
+          voltage:
+            name: Spannung
+            description: Entität für Spannung (einphasig / gemittelt).
+          current:
+            name: Strom
+            description: Entität für Strom (einphasig / gesamt).
+          frequency:
+            name: Frequenz
+            description: Entität für Netzfrequenz in Hz.
+          voltage_l1:
+            name: Spannung L1
+            description: Entität für L1-Spannung (dreiphasig).
+          voltage_l2:
+            name: Spannung L2
+            description: Entität für L2-Spannung (dreiphasig).
+          voltage_l3:
+            name: Spannung L3
+            description: Entität für L3-Spannung (dreiphasig).
+          current_l1:
+            name: Strom L1
+            description: Entität für L1-Strom (dreiphasig).
+          current_l2:
+            name: Strom L2
+            description: Entität für L2-Strom (dreiphasig).
+          current_l3:
+            name: Strom L3
+            description: Entität für L3-Strom (dreiphasig).
+          power_l1:
+            name: Leistung L1
+            description: Entität für L1-Leistung (dreiphasig).
+          power_l2:
+            name: Leistung L2
+            description: Entität für L2-Leistung (dreiphasig).
+          power_l3:
+            name: Leistung L3
+            description: Entität für L3-Leistung (dreiphasig).

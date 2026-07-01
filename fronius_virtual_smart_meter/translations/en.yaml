@@ -1,0 +1,109 @@
+configuration:
+  log_level:
+    name: Log level
+    description: >-
+      Verbosity of the add-on log. Use debug to trace HA API polls and
+      aggregate updates when troubleshooting.
+  ha_poll_interval:
+    name: HA poll interval
+    description: >-
+      Seconds between Home Assistant Core API polls for entity states. Lower
+      values react faster but poll more often. Default 5.
+  meter:
+    name: Virtual meter
+    description: Identity and behaviour of the single aggregated SunSpec meter.
+    fields:
+      serial:
+        name: Serial number
+        description: >-
+          Unique, stable serial for the virtual meter. Don't reuse your real
+          Smart Meter's serial, and don't change it once Fronius has registered
+          the meter.
+      manufacturer:
+        name: Manufacturer
+        description: Advertised manufacturer name. Default Fronius.
+      model_name:
+        name: Model name
+        description: Advertised model name. Default "Smart Meter 63A".
+      power_sign:
+        name: Power sign
+        description: >-
+          production reports generation as positive watts (what a GEN24
+          Generator meter expects); export reports it as negative watts (classic
+          meter convention). Flip this if Solar.web shows the sign wrong.
+      stale_timeout:
+        name: Stale timeout
+        description: >-
+          Seconds without fresh data before an inverter drops from the live
+          power total (its lifetime energy is retained). 0 disables the check.
+      device_address:
+        name: Device address
+        description: SunSpec Common-block device address. Default 240; rarely needs changing.
+  inverters:
+    name: Inverters
+    description: >-
+      One entry per inverter to aggregate. All entries are summed into the
+      single virtual meter.
+    fields:
+      name:
+        name: Name
+        description: Friendly name for this inverter, used in the log.
+      source:
+        name: Source
+        description: Where this inverter's data comes from. Currently Home Assistant entities.
+      phases:
+        name: Phases
+        description: >-
+          single for a single-phase inverter, three for a three-phase inverter.
+      phase:
+        name: Phase
+        description: >-
+          For single-phase inverters, which phase (L1/L2/L3) the inverter feeds.
+      entities:
+        name: Entities
+        description: >-
+          Map of metric to Home Assistant entity id. power and energy_total are
+          required; the rest are optional. Units are auto-detected per entity.
+        fields:
+          power:
+            name: Power
+            description: Entity for AC power (any unit, e.g. W or kW — auto-converted).
+          energy_total:
+            name: Total energy
+            description: Entity for lifetime produced energy (Wh or kWh — auto-converted).
+          voltage:
+            name: Voltage
+            description: Entity for voltage (single-phase / averaged).
+          current:
+            name: Current
+            description: Entity for current (single-phase / total).
+          frequency:
+            name: Frequency
+            description: Entity for grid frequency in Hz.
+          voltage_l1:
+            name: Voltage L1
+            description: Entity for L1 voltage (three-phase).
+          voltage_l2:
+            name: Voltage L2
+            description: Entity for L2 voltage (three-phase).
+          voltage_l3:
+            name: Voltage L3
+            description: Entity for L3 voltage (three-phase).
+          current_l1:
+            name: Current L1
+            description: Entity for L1 current (three-phase).
+          current_l2:
+            name: Current L2
+            description: Entity for L2 current (three-phase).
+          current_l3:
+            name: Current L3
+            description: Entity for L3 current (three-phase).
+          power_l1:
+            name: Power L1
+            description: Entity for L1 power (three-phase).
+          power_l2:
+            name: Power L2
+            description: Entity for L2 power (three-phase).
+          power_l3:
+            name: Power L3
+            description: Entity for L3 power (three-phase).

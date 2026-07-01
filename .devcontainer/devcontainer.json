@@ -1,0 +1,65 @@
+{
+  "name": "Devcontainer for apps repositories",
+  "image": "ghcr.io/home-assistant/devcontainer:5-apps",
+  "overrideCommand": false,
+  "remoteUser": "vscode",
+  "appPort": ["7123:8123", "7357:4357"],
+  // The HA apps image is a Supervisor dev image (Debian base) with no Python;
+  // this feature adds python3.12 + pip so we can lint/format and run the app.
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12",
+      "installTools": false
+    }
+  },
+  // The Supervisor bind-propagates /mnt/supervisor/media (rslave) into the HA
+  // container, which requires /mnt/supervisor to be a shared/slave mount. Under
+  // rootful Podman (daemonless) volumes default to `private`, so make it rshared
+  // before bootstrap; fall back to making / rshared if the volume isn't its own
+  // mountpoint. Without this, `Start Home Assistant` fails with
+  // "... is not a shared or slave mount".
+  "postStartCommand": "sudo mount --make-rshared /mnt/supervisor 2>/dev/null || sudo mount --make-rshared / 2>/dev/null || true; bash devcontainer_bootstrap",
+  "postCreateCommand": "python3 -m pip install -r requirements-dev.txt -r fronius_virtual_smart_meter/requirements.txt",
+  "runArgs": ["-e", "GIT_EDITOR=code --wait", "--privileged"],
+  "workspaceFolder": "/mnt/supervisor/apps/local/${localWorkspaceFolderBasename}",
+  "workspaceMount": "source=${localWorkspaceFolder},target=${containerWorkspaceFolder},type=bind,consistency=cached",
+  "containerEnv": {
+    "WORKSPACE_DIRECTORY": "${containerWorkspaceFolder}",
+    "SUPERVISOR_CHANNEL": "beta"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-python.python", "timonwong.shellcheck", "esbenp.prettier-vscode", "charliermarsh.ruff"],
+      "settings": {
+        // The .vscode/settings.json interpreter points at the host .venv, which
+        // can't run in this Linux container; use the feature's system Python
+        // (deps are pip-installed there by postCreateCommand). Testing panel
+        // settings are inherited from .vscode/settings.json.
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "terminal.integrated.profiles.linux": {
+          "zsh": {
+            "path": "/usr/bin/zsh"
+          }
+        },
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "editor.formatOnPaste": false,
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true,
+        "files.trimTrailingWhitespace": true,
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff",
+          "editor.codeActionsOnSave": {
+            "source.fixAll.ruff": "explicit",
+            "source.organizeImports.ruff": "explicit"
+          }
+        }
+      }
+    }
+  },
+  "mounts": [
+    "type=volume,target=/var/lib/docker",
+    "type=volume,target=/var/lib/containerd",
+    "type=volume,target=/mnt/supervisor",
+    "type=tmpfs,target=/tmp"
+  ]
+}
