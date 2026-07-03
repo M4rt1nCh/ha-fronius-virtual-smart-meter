@@ -1,8 +1,8 @@
 """The single aggregate meter and its per-inverter source states.
 
-Each inverter relies on Home Assistant entities; its parsed values are held in an
-``InverterState``. The :class:`Meter` sums all inverter states into one SunSpec
-register image that the Fronius reads as a single meter:
+Each inverter is fed by a data source (see ``source.py``); its parsed values are
+held in an ``InverterState``. The :class:`Meter` sums all inverter states into
+one SunSpec register image that the Fronius reads as a single meter:
 
   * power / current  -> summed per phase (stale inverters contribute 0)
   * energy           -> summed lifetime kWh -> Wh in TotWhExp (always counted,
@@ -25,7 +25,7 @@ _PHASE_SUFFIX = {"L1": "phA", "L2": "phB", "L3": "phC"}
 
 
 class InverterState:
-    """Latest normalized values parsed from one inverter's Home Assistant metrics."""
+    """Latest normalized values parsed from one inverter's data-source metrics."""
 
     def __init__(self, cfg: InverterConfig) -> None:
         self.cfg = cfg
@@ -89,7 +89,7 @@ class Meter:
         self.recompute()
 
     def apply_inverter_metrics(self, inv: InverterState, metrics: dict) -> None:
-        """Apply metrics from a Home Assistant source, rebuild the aggregate."""
+        """Apply metrics from a data source, rebuild the aggregate."""
         inv.apply_metrics(metrics)
         self._after_update(inv)
 

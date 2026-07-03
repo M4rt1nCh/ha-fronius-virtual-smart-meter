@@ -25,15 +25,22 @@ Data flow: `data source (HA entities) → InverterState (per inverter)
 → Meter.recompute() sums into one SunSpec register image → one Modbus TCP server
 → Fronius polls HA's IP:502 as a client`.
 
-Each inverter has one `source`: `homeassistant` (poll the HA Core API for entity
-states). The poller normalizes each inverter's entities to a metric dict and
-calls `InverterState.apply_metrics`. A pure-HA setup needs no broker — only
-`homeassistant_api: true` in the manifest.
+Each inverter has one `source`. Sources are pluggable via the `DataSource`
+interface in `source.py`; `homeassistant` (poll the HA Core API for entity
+states) is currently the only implementation. Its `run()` loop normalizes each
+inverter's entities to a metric dict and calls `meter.apply_inverter_metrics`. A
+pure-HA setup needs no broker — only `homeassistant_api: true` in the manifest.
 
-All application code lives in `fronius_meter_bridge/app/`:
+All application code lives in `fronius_virtual_smart_meter/app/`:
 
-- `__main__.py` — asyncio orchestration. Spawns `serve_meter`, `run_watchdog`,
-  and `run_ha_poller`; tears down if any exits.
+- `__main__.py` — asyncio orchestration. Builds sources via `build_sources`, then
+  spawns `serve_meter`, `run_watchdog`, and one `source.run()` task per data
+  source; tears down if any exits.
+- `source.py` — the `DataSource` ABC (`async run()`), a name→builder registry
+  (`register_source`), and `build_sources(config, meter)` which groups
+  `meter.inverters` by `cfg.source` and instantiates one source per type. To add
+  a source (e.g. MQTT), implement `DataSource` and register it — and add its name
+  to `config._VALID_SOURCE` (parse-time validation is intentionally separate).
 - `config.py` — parses/validates `/data/options.json` (path overridable via
   `OPTIONS_FILE` env, read at call time). One `MeterConfig` (identity/sign/stale)
   + N `InverterConfig` (each with an `entities` map of metric → HA entity id).
@@ -45,9 +52,10 @@ All application code lives in `fronius_meter_bridge/app/`:
   `apply_inverter_metrics` applies a metric dict to one state then recomputes.
 - `sunspec.py` — **the core**. Builds the Fronius-compatible SunSpec register
   image and exposes `FIELD_INDEX` (field name → list index) + `set_float`.
-- `ha_source.py` — polls the HA Core API (`http://supervisor/core/api/states`
-  with `SUPERVISOR_TOKEN`) every `ha_poll_interval`s; normalizes units (kW→W,
-  Wh→kWh) and calls `meter.apply_inverter_metrics`. Needs `homeassistant_api: true`.
+- `ha_source.py` — `HomeAssistantSource(DataSource)`: polls the HA Core API
+  (`http://supervisor/core/api/states` with `SUPERVISOR_TOKEN`) every
+  `ha_poll_interval`s; normalizes units (kW→W, Wh→kWh) and calls
+  `meter.apply_inverter_metrics`. Needs `homeassistant_api: true`.
 - `modbus_server.py` — `_MeterDataBlock` serves the meter's live registers;
   `serve_meter` runs one pymodbus async TCP server on `0.0.0.0:502`.
 - `watchdog.py` — periodically calls `meter.recompute()` so stale inverters drop

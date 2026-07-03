@@ -11,6 +11,14 @@ import pytest
 from app import ha_source as ha
 from app.config import InverterConfig
 from app.meter import InverterState
+from app.source import _REGISTRY, DataSource
+
+
+def test_homeassistant_source_implements_and_registers():
+    assert issubclass(ha.HomeAssistantSource, DataSource)
+    assert ha.HomeAssistantSource.name == "homeassistant"
+    # Registered under its name via the module-level register_source() call.
+    assert "homeassistant" in _REGISTRY
 
 
 def _state(value, unit=None):

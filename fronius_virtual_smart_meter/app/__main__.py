@@ -7,9 +7,9 @@ import logging
 import sys
 
 from .config import ConfigError, load_config
-from .ha_source import run_ha_poller
 from .meter import Meter
 from .modbus_server import serve_meter
+from .source import build_sources
 from .watchdog import run_watchdog
 
 _LOG_FORMAT = "%(asctime)s %(levelname)s [%(name)s] %(message)s"
@@ -35,23 +35,23 @@ async def _run() -> None:
     config = load_config()
     _configure_logging(config.log_level)
     log = logging.getLogger("fronius_meter_bridge")
-    log.info(
-        "Starting: 1 aggregate meter '%s' from %d inverter(s) [ha=%s]",
-        config.meter.serial,
-        len(config.inverters),
-        config.uses_homeassistant,
-    )
 
     meter = Meter(config.meter, config.inverters)
+    sources = build_sources(config, meter)
+    log.info(
+        "Starting: 1 aggregate meter '%s' from %d inverter(s) [sources=%s]",
+        config.meter.serial,
+        len(config.inverters),
+        sorted(s.name for s in sources),
+    )
 
-    # Dispatch 3 tasks: the Modbus server, the watchdog, and the Home Assistant poller.
+    # Dispatch the Modbus server, the watchdog, and one task per data source.
     tasks = [
         asyncio.create_task(serve_meter(meter), name="modbus"),
         asyncio.create_task(run_watchdog(meter), name="watchdog"),
-        asyncio.create_task(
-            run_ha_poller(meter, config.ha_poll_interval), name="ha-data"
-        ),
     ]
+    for source in sources:
+        tasks.append(asyncio.create_task(source.run(), name=f"source:{source.name}"))
 
     # If any long-running task dies, surface it and tear everything down.
     done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)

@@ -16,10 +16,15 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
+from typing import TYPE_CHECKING
 
 import aiohttp
 
 from .meter import InverterState, Meter
+from .source import DataSource, register_source
+
+if TYPE_CHECKING:
+    from .config import AppConfig
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -35,30 +40,47 @@ _POWER_KEYS = {"power", "power_l1", "power_l2", "power_l3"}
 _ENERGY_KEYS = {"energy_total"}
 
 
-async def run_ha_poller(meter: Meter, poll_interval: int) -> None:
-    """Poll HA entity states for all homeassistant-source inverters forever."""
-    token = os.environ.get("SUPERVISOR_TOKEN")
-    if not token:
-        _LOGGER.error(
-            "SUPERVISOR_TOKEN is not set; cannot read Home Assistant entities. "
-            "Is 'homeassistant_api: true' set in the add-on config?"
-        )
-        return
+class HomeAssistantSource(DataSource):
+    """Feeds inverters whose ``source`` is ``homeassistant`` from the Core API."""
 
-    ha_inverters = [i for i in meter.inverters if i.cfg.source == "homeassistant"]
-    headers = {"Authorization": f"Bearer {token}"}
-    interval = max(1, poll_interval)
+    name = "homeassistant"
 
-    async with aiohttp.ClientSession(headers=headers) as session:
-        while True:
-            try:
-                states = await _fetch_states(session)
-                for inv in ha_inverters:
-                    metrics = _metrics_for(inv, states)
-                    meter.apply_inverter_metrics(inv, metrics)
-            except aiohttp.ClientError as exc:
-                _LOGGER.warning("Home Assistant API request failed: %s", exc)
-            await asyncio.sleep(interval)
+    def __init__(
+        self, meter: Meter, inverters: list[InverterState], poll_interval: int
+    ) -> None:
+        self._meter = meter
+        self._inverters = inverters
+        self._poll_interval = poll_interval
+
+    @classmethod
+    def create(
+        cls, config: AppConfig, meter: Meter, inverters: list[InverterState]
+    ) -> HomeAssistantSource:
+        return cls(meter, inverters, config.ha_poll_interval)
+
+    async def run(self) -> None:
+        """Poll HA entity states for this source's inverters forever."""
+        token = os.environ.get("SUPERVISOR_TOKEN")
+        if not token:
+            _LOGGER.error(
+                "SUPERVISOR_TOKEN is not set; cannot read Home Assistant entities. "
+                "Is 'homeassistant_api: true' set in the add-on config?"
+            )
+            return
+
+        headers = {"Authorization": f"Bearer {token}"}
+        interval = max(1, self._poll_interval)
+
+        async with aiohttp.ClientSession(headers=headers) as session:
+            while True:
+                try:
+                    states = await _fetch_states(session)
+                    for inv in self._inverters:
+                        metrics = _metrics_for(inv, states)
+                        self._meter.apply_inverter_metrics(inv, metrics)
+                except aiohttp.ClientError as exc:
+                    _LOGGER.warning("Home Assistant API request failed: %s", exc)
+                await asyncio.sleep(interval)
 
 
 async def _fetch_states(session: aiohttp.ClientSession) -> dict[str, dict]:
@@ -99,3 +121,6 @@ def _normalize(key: str, state: dict) -> float | None:
     if key in _ENERGY_KEYS:
         return value * _ENERGY_TO_KWH.get(unit, 1.0)
     return value
+
+
+register_source(HomeAssistantSource.name, HomeAssistantSource.create)
