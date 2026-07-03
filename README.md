@@ -8,8 +8,13 @@ generation from extra inverters (e.g. Growatt) as production.
 
 ## Installation
 
-This is a Home Assistant **add-on**, so it installs via the Add-on Store, **not
-HACS** (HACS does not manage add-ons).
+This is a Home Assistant **app** / **add-on**, so it installs via the Add-on Store,
+**not HACS** (HACS does not manage add-ons).
+
+### Option A: Automatic Installation
+[![Open your Home Assistant instance and show the add app repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FM4rt1nCh%2Fha-fronius-virtual-smart-meter)
+
+### Option B: Manual Installation
 
 1. In Home Assistant go to **Settings → Add-ons → Add-on Store**.
 2. Click the **⋮** menu (top right) → **Repositories**.
@@ -38,7 +43,7 @@ fronius_meter_bridge/       # the add-on
 ├── DOCS.md                # full setup / configuration / troubleshooting
 ├── CHANGELOG.md
 ├── app/                   # the bridge (config, meter, sunspec, ha, modbus)
-└── tools/                 # dev helpers
+└── translations/          # i8n
 ```
 
 Full configuration and Fronius setup instructions are in
