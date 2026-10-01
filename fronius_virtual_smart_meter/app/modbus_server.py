@@ -14,8 +14,8 @@ import asyncio
 import logging
 
 from pymodbus.datastore import (
+    ModbusDeviceContext,
     ModbusServerContext,
-    ModbusSlaveContext,
     ModbusSparseDataBlock,
 )
 from pymodbus.server import StartAsyncTcpServer
@@ -43,7 +43,9 @@ class _MeterDataBlock(ModbusSparseDataBlock):
 
     def getValues(self, address: int, count: int = 1) -> list[int]:
         regs = self._meter.registers
-        start = address - sunspec.BASE_ADDRESS
+        # ModbusDeviceContext adds 1 to the wire address before calling us (1-indexed
+        # convention), so subtract BASE_ADDRESS+1 to map back to a 0-based index.
+        start = address - sunspec.BASE_ADDRESS - 1
         if start < 0 or start + count > len(regs):
             return [0] * count
         return regs[start : start + count]
@@ -56,8 +58,8 @@ def build_server_context(meter: Meter) -> ModbusServerContext:
     ephemeral port without the production retry loop (which never returns).
     """
     block = _MeterDataBlock(meter)
-    slave = ModbusSlaveContext(hr=block, zero_mode=True)
-    return ModbusServerContext(slaves=slave, single=True)
+    slave = ModbusDeviceContext(hr=block)
+    return ModbusServerContext(devices=slave, single=True)
 
 
 async def serve_meter(
