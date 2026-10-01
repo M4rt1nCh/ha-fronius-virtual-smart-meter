@@ -1,1 +1,1 @@
-"""Fronius Virtual Meter Bridge add-on application package."""
+"""Fronius Virtual Meter Bridge app application package."""

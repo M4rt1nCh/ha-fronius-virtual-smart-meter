@@ -2,7 +2,7 @@ configuration:
   log_level:
     name: Log level
     description: >-
-      Verbosity of the add-on log. Use debug to trace HA API polls and
+      Verbosity of the app log. Use debug to trace HA API polls and
       aggregate updates when troubleshooting.
   ha_poll_interval:
     name: HA poll interval

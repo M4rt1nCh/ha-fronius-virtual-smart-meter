@@ -4,19 +4,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A Home Assistant **add-on** (Docker container, not a custom integration) that
+A Home Assistant **app** (Docker container, not a custom integration) that
 bridges Home Assistant entities to Modbus and expose a
 **single virtual Fronius SunSpec smart meter** (aggregating any number of
 inverters) over Modbus TCP, so a Fronius GEN24 can discover it as a secondary
 "Generator" meter.
 
-An add-on is required (not an integration) because the process must run a
+An app is required (not an integration) because the process must run a
 long-lived Modbus TCP **server** bound to port 502 — something HA integrations
 cannot do.
 
 **Why a single aggregate meter:** the Fronius will not poll more than one meter
 per IP, and only on port 502. Rather than allocate extra host IPs (the v0.1
-design, since removed), the add-on sums all inverters into one meter on HA's own
+design, since removed), the app sums all inverters into one meter on HA's own
 IP. Per-inverter breakdown is lost; total generation is correct.
 
 ## Architecture
@@ -62,7 +62,7 @@ All application code lives in `fronius_virtual_smart_meter/app/`:
   from the live power total (safety: never feed frozen generation data into the
   Fronius export-control loop).
 
-Packaging: `config.yaml` (add-on manifest: options schema, `host_network: true`,
+Packaging: `config.yaml` (app manifest: options schema, `host_network: true`,
 `build.yaml` (Python 3.12 base images), `Dockerfile`, `run.sh` (bashio entrypoint).
 
 ## Critical domain constants (don't "fix" these without re-checking the Fronius spec)

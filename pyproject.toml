@@ -1,5 +1,5 @@
 [tool.ruff]
-# Match the Python 3.12 base images used by the add-on (see build.yaml).
+# Match the Python 3.12 base images used by the app (see build.yaml).
 target-version = "py312"
 line-length = 88
 src = ["fronius_virtual_smart_meter"]

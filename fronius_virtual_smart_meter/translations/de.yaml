@@ -2,7 +2,7 @@ configuration:
   log_level:
     name: Protokollierungsstufe
     description: >-
-      Ausführlichkeit des Add-on-Protokolls. Verwende debug, um HA-API-Abfragen
+      Ausführlichkeit des App-Protokolls. Verwende debug, um HA-API-Abfragen
       und Aggregations-Updates bei der Fehlersuche nachzuverfolgen.
   ha_poll_interval:
     name: HA-Abfrageintervall

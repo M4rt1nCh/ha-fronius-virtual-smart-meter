@@ -49,7 +49,7 @@ Inverter N ┘                      │
 - Port **502** free on the Home Assistant host.
 
 > **Why one meter?** The Fronius will not poll more than one meter per IP, and
-> only on port 502. Rather than juggle extra IP addresses, this add-on presents
+> only on port 502. Rather than juggle extra IP addresses, this app presents
 > a single combined meter on HA's existing IP. You lose the per-inverter
 > breakdown in Solar.web, but total generation is counted correctly.
 
@@ -113,8 +113,8 @@ the one meter.
 ## Troubleshooting
 
 - **Meter registers but shows no values / blank:** make sure you're on the
-  latest add-on version (early versions advertised SunSpec model 211, which
-  GEN24 firmware won't read; it must be 213). Rebuild the add-on and remove +
+  latest app version (early versions advertised SunSpec model 211, which
+  GEN24 firmware won't read; it must be 213). Rebuild the app and remove +
   re-add the meter in Fronius so it re-reads the model.
 - **Generation is subtracted from PV instead of added (or shows as
   consumption):** switch `meter.power_sign`. A GEN24 Generator meter wants

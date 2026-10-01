@@ -1,7 +1,7 @@
-"""Load and validate add-on configuration.
+"""Load and validate app configuration.
 
 Configuration comes from:
-  * ``/data/options.json`` - the add-on options written by the Supervisor.
+  * ``/data/options.json`` - the app options written by the Supervisor.
   * ``SUPERVISOR_TOKEN`` - injected by the Supervisor; used by the
     ``homeassistant`` source to read entity states from the HA Core API.
 
@@ -47,7 +47,7 @@ _ENTITY_KEYS = (
 
 
 class ConfigError(Exception):
-    """Raised when the add-on configuration is invalid."""
+    """Raised when the app configuration is invalid."""
 
 
 @dataclass

@@ -95,7 +95,7 @@ class Meter:
 
     def _after_update(self, inv: InverterState) -> None:
         self.recompute()
-        _LOGGER.debug(
+        _LOGGER.info(
             "%s updated; aggregate now %.0f W, %.1f kWh",
             inv.cfg.name,
             self._total_w(),

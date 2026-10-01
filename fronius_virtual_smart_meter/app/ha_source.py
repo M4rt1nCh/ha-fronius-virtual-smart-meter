@@ -3,7 +3,7 @@
 Polls the Home Assistant Core API (proxied through the Supervisor) for the
 entity states configured per inverter, normalizes their units to W / kWh / V /
 A / Hz, and feeds them into the aggregate meter. This needs no data provider / broker -
-only ``homeassistant_api: true`` in config.yaml, which gives the add-on a
+only ``homeassistant_api: true`` in config.yaml, which gives the app a
 ``SUPERVISOR_TOKEN`` to call ``http://supervisor/core/api``.
 
 Units are read from each entity's ``unit_of_measurement`` attribute and
@@ -64,7 +64,7 @@ class HomeAssistantSource(DataSource):
         if not token:
             _LOGGER.error(
                 "SUPERVISOR_TOKEN is not set; cannot read Home Assistant entities. "
-                "Is 'homeassistant_api: true' set in the add-on config?"
+                "Is 'homeassistant_api: true' set in the app config?"
             )
             return
 
