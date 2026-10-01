@@ -30,7 +30,8 @@ def _f32(regs: list[int], idx: int) -> float:
 
 def test_datablock_returns_suns_marker(meter_factory):
     block = _MeterDataBlock(meter_factory())
-    regs = block.getValues(sunspec.BASE_ADDRESS, 2)
+    # +1 because ModbusDeviceContext adds 1 to the wire address before calling getValues.
+    regs = block.getValues(sunspec.BASE_ADDRESS + 1, 2)
     assert _marker(regs) == sunspec.SUNS_MARKER
 
 
@@ -43,7 +44,8 @@ def test_datablock_validate_accepts_any_address(meter_factory):
 
 def test_datablock_out_of_range_returns_zeros(meter_factory):
     block = _MeterDataBlock(meter_factory())
-    regs = block.getValues(sunspec.BASE_ADDRESS + sunspec.TOTAL_REGISTERS, 4)
+    # +1 offset mirrors what ModbusDeviceContext passes to getValues.
+    regs = block.getValues(sunspec.BASE_ADDRESS + sunspec.TOTAL_REGISTERS + 1, 4)
     assert regs == [0, 0, 0, 0]
 
 
@@ -53,7 +55,8 @@ def test_datablock_reflects_live_updates(meter_factory):
     meter.apply_inverter_metrics(
         meter.inverters[0], {"power": 1234.0, "energy_total": 1.0}
     )
-    regs = block.getValues(sunspec.BASE_ADDRESS, sunspec.TOTAL_REGISTERS)
+    # +1 offset mirrors what ModbusDeviceContext passes to getValues.
+    regs = block.getValues(sunspec.BASE_ADDRESS + 1, sunspec.TOTAL_REGISTERS)
     assert _f32(regs, sunspec.FIELD_INDEX["W"]) == pytest.approx(1234.0)
 
 
@@ -87,7 +90,7 @@ def test_modbus_tcp_roundtrip(meter_factory):
             while offset < total:
                 count = min(125, total - offset)
                 rr = client.read_holding_registers(
-                    address=sunspec.BASE_ADDRESS + offset, count=count, slave=1
+                    address=sunspec.BASE_ADDRESS + offset, count=count, device_id=1
                 )
                 assert not rr.isError(), rr
                 regs += rr.registers

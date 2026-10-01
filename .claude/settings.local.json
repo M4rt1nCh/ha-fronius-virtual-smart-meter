@@ -37,7 +37,13 @@
       "Bash(.venv/bin/python *)",
       "WebFetch(domain:www.google.com)",
       "WebFetch(domain:html.duckduckgo.com)",
-      "Bash(python3 *)"
+      "Bash(python3 *)",
+      "Bash(python -c ' *)",
+      "WebFetch(domain:pymodbus.readthedocs.io)",
+      "WebFetch(domain:docs.pytest.org)",
+      "Bash(python -m pytest tests/ -m \"not integration\" -q)",
+      "Bash(python -m pytest tests/test_modbus_server.py -m integration -v)",
+      "Bash(python -m ruff check fronius_virtual_smart_meter/)"
     ]
   }
 }

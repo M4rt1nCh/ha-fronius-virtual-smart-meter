@@ -1,4 +1,4 @@
 # Development tooling (linting/formatting/testing). Runtime deps live in
 # fronius_virtual_smart_meter/requirements.txt.
-ruff==0.14.3
-pytest==8.3.4
+ruff==0.16.10
+pytest==9.1.1
