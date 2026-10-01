@@ -15,7 +15,7 @@ from .meter import Meter
 
 _LOGGER = logging.getLogger(__name__)
 
-_CHECK_INTERVAL = 5  # seconds
+_CHECK_INTERVAL = 10  # seconds
 
 
 async def run_watchdog(meter: Meter) -> None:
